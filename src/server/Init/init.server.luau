@@ -1,0 +1,18 @@
+local Players = game:GetService("Players")
+local ServerScriptService = game:GetService("ServerScriptService")
+local MushroomService = require(ServerScriptService.Feature.Mushroom.MushroomService)
+local PlayerService = require(ServerScriptService.Feature.Player.PlayerService)
+local PlayerStore = require(ServerScriptService.Feature.Player.PlayerStore)
+local PlotService = require(ServerScriptService.Feature.Plot.PlotService)
+
+Players.PlayerAdded:Connect(function(player: Player)
+    PlayerStore.Init(player)
+    PlayerService.Init(player)
+    PlotService.Init(player)
+    MushroomService.Init(player)
+end)
+
+Players.PlayerRemoving:Connect(function(player: Player)
+    PlayerStore.CleanUp(player)
+    PlayerService.CleanUp(player)
+end)
