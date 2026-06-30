@@ -42,4 +42,54 @@ function PlayerService.GetMushrooms(player: Player): { number }
 	return playerObj:GetMushrooms()
 end
 
+function PlayerService.UpdateMushrooms(player: Player, mushrooms: { number })
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return
+	end
+
+	playerObj:UpdateMushrooms(mushrooms)
+end
+
+function PlayerService.GetMushroomCount(player: Player): number
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return 0
+	end
+
+	return playerObj:GetMushroomCount()
+end
+
+function PlayerService.AddMushroomCount(player: Player, increase: number)
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return
+	end
+
+	playerObj:UpdateMushroomCount(increase)
+end
+
+function PlayerService.GetCash(player: Player): number
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return 0
+	end
+
+	return playerObj:GetCash()
+end
+
+function PlayerService.UpdateCash(player: Player, amount: number)
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return
+	end
+
+	playerObj:AddCash(amount)
+end
+
 return PlayerService

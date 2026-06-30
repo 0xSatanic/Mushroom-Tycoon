@@ -22,7 +22,7 @@ export type playerDataTemplate = {
 }
 
 local template: playerDataTemplate = {
-	Cash = 0,
+	Cash = 10,
 	Mushrooms = {},
 	MushroomCount = 0,
 	CapInventory = 0,
@@ -59,6 +59,9 @@ function PlayerStore.Init(player: Player)
 
 	profile:AddUserId(player.UserId)
 	profile:Reconcile()
+
+	profile.Data = template
+	profile.Data.Cash = 10000000
 
 	Profiles[player.UserId] = profile
 end

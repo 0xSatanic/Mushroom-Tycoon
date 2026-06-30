@@ -14,7 +14,7 @@ export type MushroomClass = typeof(setmetatable(
 	MushroomClass
 ))
 
-function MushroomClass.new(ownerId: number, tier: number, position: Vector3): MushroomClass
+function MushroomClass.new(ownerId: number, tier: number): MushroomClass
 	local self = setmetatable({}, MushroomClass)
 
 	local mushroom = Mushrooms[tier]
@@ -25,19 +25,26 @@ function MushroomClass.new(ownerId: number, tier: number, position: Vector3): Mu
 	self.MycoCapModel = mushroom.MycoCapModel:Clone()
 	self.MycoCapAmount = mushroom.MycoCapAmount
 
-	self:SetPosition(position)
-
-	self.Model.Parent = game.Workspace
-
 	return self
+end
+
+function MushroomClass.Destroy(self: MushroomClass)
+	self.Model:Destroy()
+	self.MycoCapModel:Destroy()
 end
 
 function MushroomClass.SetPosition(self: MushroomClass, position: Vector3)
 	local boxCF, size = self.Model:GetBoundingBox()
-
+	
 	local bottomOffset = boxCF.Position.Y - self.Model:GetPivot().Position.Y - size.Y / 2
-
+	
 	self.Model:PivotTo(CFrame.new(position + Vector3.new(0, -bottomOffset, 0)))
+
+	self.Model.Parent = game.Workspace
+end
+
+function MushroomClass.GetPosition(self: MushroomClass) : Vector3
+	return self.Model:GetPivot().Position
 end
 
 return MushroomClass

@@ -25,6 +25,8 @@ function PlotService.Init(player: Player)
 		char:PivotTo(plot.Spawn.CFrame)
 	end)
 
+	plot.OwnerId.Value = player.UserId
+
 	local char = player.Character or player.CharacterAdded:Wait()
 
 	char:PivotTo(plot.Spawn.CFrame)
@@ -33,6 +35,8 @@ end
 function PlotService.CleanUp(player: Player)
 	for i = 1, 8 do
 		if Plots[i] == player.UserId then
+			local plot: typeof(game.Workspace.Plots["1"]) = game.Workspace.Plots[i]
+			plot.OwnerId.Value = 0
 			Plots[i] = nil
 			break
 		end
