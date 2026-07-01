@@ -82,7 +82,7 @@ function PlayerService.GetCash(player: Player): number
 	return playerObj:GetCash()
 end
 
-function PlayerService.UpdateCash(player: Player, amount: number)
+function PlayerService.AddCash(player: Player, amount: number)
 	local playerObj = PlayerService.WaitForPlayerObj(player)
 
 	if not playerObj then
@@ -90,6 +90,26 @@ function PlayerService.UpdateCash(player: Player, amount: number)
 	end
 
 	playerObj:AddCash(amount)
+end
+
+function PlayerService.GetCapInventory(player: Player): number
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return 0
+	end
+
+	return playerObj:GetCapInventory()
+end
+
+function PlayerService.AddCapInventory(player: Player, amount: number)
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return
+	end
+
+	playerObj:AddCapInventory(amount)
 end
 
 return PlayerService

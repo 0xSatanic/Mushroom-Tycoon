@@ -1,3 +1,6 @@
+--!strict
+
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Mushrooms = require(ReplicatedStorage.Shared.Modules.Mushrooms)
@@ -5,18 +8,45 @@ local PlayerService = require(ServerScriptService.Feature.Player.PlayerService)
 local MushroomClass = require(script.Parent.MushroomClass)
 local PlotService = require(ServerScriptService.Feature.Plot.PlotService)
 
+local CollectMycoCapEvent = ReplicatedStorage.Remotes.CollectMycoCapEvent
+
 local MushroomService = {}
 
 local MushroomObjs: { [number]: { [number]: { MushroomClass.MushroomClass } } } = {} -- {[userId] : {[tier] : obj}}
 
+local UnclaimmedMycoCaps: {[number] : {[number] : {string}}} = {} -- {[userId] : {[tier] : {mycoCapId}}}
+
 local config = {
 	BasePrice = 5,
 	PriceMultiplier = 0.15,
-	MaxMushroomInThePlot = 60
+	MaxMushroomInThePlot = 60,
+	CapInterval = 5
 }
+
+task.spawn(function()
+	while true do
+		task.wait(config.CapInterval)
+
+		for userId, tierMap in MushroomObjs do
+			local player = Players:GetPlayerByUserId(userId)
+			if not player then
+				continue
+			end
+
+			for tier, list in tierMap do
+				for _, mushroomObj in list do
+					local capId = mushroomObj:SpawnMycoCap()
+					
+					table.insert(UnclaimmedMycoCaps[userId][tier], capId)
+				end
+			end
+		end
+	end
+end)
 
 function MushroomService.Init(player: Player)
 	MushroomObjs[player.UserId] = {}
+	UnclaimmedMycoCaps[player.UserId] = {}
 
 	local mushrooms = PlayerService.GetMushrooms(player)
 
@@ -51,13 +81,18 @@ function MushroomService.CleanUp(player: Player)
 	end
 
 	MushroomObjs[player.UserId] = nil
+	UnclaimmedMycoCaps[player.UserId] = nil
 end
 
 function MushroomService.Create(player: Player, tier: number)
-	local mushroomObj = MushroomClass.new(player.UserId, tier)
+	local mushroomObj = MushroomClass.new(player.UserId, tier)	
 
 	if not MushroomObjs[player.UserId][tier] then
 		MushroomObjs[player.UserId][tier] = {}
+	end
+
+	if not UnclaimmedMycoCaps[player.UserId][tier] then
+		UnclaimmedMycoCaps[player.UserId][tier] = {}
 	end
 
 	table.insert(MushroomObjs[player.UserId][tier], mushroomObj)
@@ -76,7 +111,7 @@ function MushroomService.Buy(player: Player, amount: number) : (boolean, string?
 		return false, "Not Enough Cash"
 	end
 
-	PlayerService.UpdateCash(player, -price)
+	PlayerService.AddCash(player, -price)
 
 	for _ = 1, amount do 
 		MushroomService.Create(player, 1)
@@ -160,13 +195,7 @@ function MushroomService.Merge(player: Player)
 			mushroomB:Destroy()
 			mushroomC:Destroy()
 
-			local newMushroom = MushroomClass.new(player.UserId, tier + 1)
-
-			if not playerMushrooms[tier + 1] then
-				playerMushrooms[tier + 1] = {}
-			end
-
-			table.insert(playerMushrooms[tier + 1], newMushroom)
+			MushroomService.Create(player, tier + 1)
 
 			highestTier = math.max(highestTier, tier + 1)
 		end
@@ -190,5 +219,26 @@ function MushroomService.SaveMushroomsData(player: Player)
 
 	PlayerService.UpdateMushrooms(player, updatedMushrooms)
 end
+
+function MushroomService.CollectMycoCap(player: Player, tier: number, capId: string) 
+	local mushroomData = Mushrooms[tier]
+	
+	if not mushroomData or not UnclaimmedMycoCaps[player.UserId][tier] then 
+		return
+	end
+
+	local uncollectedMycoCapIndex = table.find(UnclaimmedMycoCaps[player.UserId][tier], capId)
+
+	if not uncollectedMycoCapIndex then
+		return
+	end
+
+	table.remove(UnclaimmedMycoCaps[player.UserId][tier], uncollectedMycoCapIndex)
+	PlayerService.AddCapInventory(player, mushroomData.MycoCapAmount)
+end
+
+CollectMycoCapEvent.OnServerEvent:Connect(function(player: Player, tier: number, capId: string)
+	MushroomService.CollectMycoCap(player, tier, capId)
+end)
 
 return MushroomService

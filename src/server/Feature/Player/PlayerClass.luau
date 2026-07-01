@@ -68,4 +68,12 @@ function PlayerClass.AddCash(self: PlayerClass, amount: number)
 	cash.Value = self.Data.Cash
 end
 
+function PlayerClass.GetCapInventory(self: PlayerClass) : number
+	return self.Data.CapInventory
+end
+
+function PlayerClass.AddCapInventory(self: PlayerClass, amount: number)
+	self.Data.CapInventory += amount
+end
+
 return PlayerClass
