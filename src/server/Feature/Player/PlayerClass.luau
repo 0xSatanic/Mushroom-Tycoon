@@ -57,7 +57,7 @@ function PlayerClass.UpdateMushroomCount(self: PlayerClass, increase: number)
 	mushroom.Value = self.Data.MushroomCount
 end
 
-function PlayerClass.GetCash(self: PlayerClass) : number
+function PlayerClass.GetCash(self: PlayerClass): number
 	return self.Data.Cash
 end
 
@@ -68,12 +68,45 @@ function PlayerClass.AddCash(self: PlayerClass, amount: number)
 	cash.Value = self.Data.Cash
 end
 
-function PlayerClass.GetCapInventory(self: PlayerClass) : number
+function PlayerClass.GetCapInventory(self: PlayerClass): number
 	return self.Data.CapInventory
 end
 
 function PlayerClass.AddCapInventory(self: PlayerClass, amount: number)
 	self.Data.CapInventory += amount
+end
+
+function PlayerClass.GetAppraiserStorage(self: PlayerClass): number
+	return self.Data.AppraiserStorage
+end
+
+function PlayerClass.AddAppraiserStorage(self: PlayerClass, amount: number)
+	self.Data.AppraiserStorage += amount
+end
+
+function PlayerClass.GetCashToClaim(self: PlayerClass): number
+	return self.Data.CashToClaim
+end
+
+function PlayerClass.AddCashToClaim(self: PlayerClass, amount: number)
+	self.Data.CashToClaim += amount
+end
+
+function PlayerClass.ClaimCash(self: PlayerClass): number
+	local amount = self.Data.CashToClaim
+
+	self.Data.CashToClaim = 0
+	self:AddCash(amount)
+
+	return amount
+end
+
+function PlayerClass.GetAppraiserRateLevel(self: PlayerClass): number
+	return self.Data.AppraiserRateLevel
+end
+
+function PlayerClass.UpgradeAppraiserRateLevel(self: PlayerClass)
+	self.Data.AppraiserRateLevel += 1
 end
 
 return PlayerClass

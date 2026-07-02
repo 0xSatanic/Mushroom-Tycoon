@@ -112,4 +112,74 @@ function PlayerService.AddCapInventory(player: Player, amount: number)
 	playerObj:AddCapInventory(amount)
 end
 
+function PlayerService.GetAppraiserStorage(player: Player): number
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return 0
+	end
+
+	return playerObj:GetAppraiserStorage()
+end
+
+function PlayerService.AddAppraiserStorage(player: Player, amount: number)
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return
+	end
+
+	playerObj:AddAppraiserStorage(amount)
+end
+
+function PlayerService.GetCashToClaim(player: Player): number
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return 0
+	end
+
+	return playerObj:GetCashToClaim()
+end
+
+function PlayerService.AddCashToClaim(player: Player, amount: number)
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return
+	end
+
+	playerObj:AddCashToClaim(amount)
+end
+
+function PlayerService.ClaimCash(player: Player) : number
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return 0
+	end
+
+	return playerObj:ClaimCash()
+end
+
+function PlayerService.GetAppraiserRateLevel(player: Player): number
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return 1
+	end
+
+	return playerObj:GetAppraiserRateLevel()
+end
+
+function PlayerService.UpgradeAppraiserRateLevel(player: Player)
+	local playerObj = PlayerService.WaitForPlayerObj(player)
+
+	if not playerObj then
+		return
+	end
+
+	playerObj:UpgradeAppraiserRateLevel()
+end
+
 return PlayerService

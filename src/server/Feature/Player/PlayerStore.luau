@@ -61,7 +61,7 @@ function PlayerStore.Init(player: Player)
 	profile:Reconcile()
 
 	profile.Data = template
-	profile.Data.Cash = 10000000
+	profile.Data.Cash = 100
 
 	Profiles[player.UserId] = profile
 end

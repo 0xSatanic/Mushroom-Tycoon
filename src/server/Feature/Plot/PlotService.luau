@@ -10,6 +10,7 @@ function PlotService.Init(player: Player)
 		else
 			plotNumber = i
 			Plots[i] = player.UserId
+			PlotService.UpdateIntValue(player, "OwnerId", player.UserId)
 			break
 		end
 	end
@@ -25,8 +26,6 @@ function PlotService.Init(player: Player)
 		char:PivotTo(plot.Spawn.CFrame)
 	end)
 
-	plot.OwnerId.Value = player.UserId
-
 	local char = player.Character or player.CharacterAdded:Wait()
 
 	char:PivotTo(plot.Spawn.CFrame)
@@ -35,8 +34,7 @@ end
 function PlotService.CleanUp(player: Player)
 	for i = 1, 8 do
 		if Plots[i] == player.UserId then
-			local plot: typeof(game.Workspace.Plots["1"]) = game.Workspace.Plots[i]
-			plot.OwnerId.Value = 0
+			PlotService.UpdateIntValue(player, "OwnerId", 0)
 			Plots[i] = nil
 			break
 		end
@@ -53,6 +51,20 @@ function PlotService.GetPlotNumber(player: Player)
 	end
 
 	return plotNumber
+end
+
+function PlotService.UpdateIntValue(player: Player, valueName: string, amount: number)
+	local plotNumber = PlotService.GetPlotNumber(player)
+
+	local plot: typeof(game.Workspace.Plots["1"]) = game.Workspace.Plots[plotNumber]
+	local IntValue = plot.Values:FindFirstChild(valueName) :: IntValue?
+
+	if not IntValue then
+		warn("PlotService.UpdateValue: value '" .. valueName .. "' not found in plot " .. plotNumber)
+		return
+	end
+
+	IntValue.Value = amount
 end
 
 return PlotService

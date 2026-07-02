@@ -14,13 +14,13 @@ local MushroomService = {}
 
 local MushroomObjs: { [number]: { [number]: { MushroomClass.MushroomClass } } } = {} -- {[userId] : {[tier] : obj}}
 
-local UnclaimmedMycoCaps: {[number] : {[number] : {string}}} = {} -- {[userId] : {[tier] : {mycoCapId}}}
+local UnclaimmedMycoCaps: { [number]: { [number]: { string } } } = {} -- {[userId] : {[tier] : {mycoCapId}}}
 
 local config = {
 	BasePrice = 5,
 	PriceMultiplier = 0.15,
 	MaxMushroomInThePlot = 60,
-	CapInterval = 5
+	CapInterval = 5,
 }
 
 task.spawn(function()
@@ -36,7 +36,7 @@ task.spawn(function()
 			for tier, list in tierMap do
 				for _, mushroomObj in list do
 					local capId = mushroomObj:SpawnMycoCap()
-					
+
 					table.insert(UnclaimmedMycoCaps[userId][tier], capId)
 				end
 			end
@@ -60,11 +60,12 @@ function MushroomService.Init(player: Player)
 
 	MushroomService.RecalculatePosition(player)
 
-
 	local mushroomCount = PlayerService.GetMushroomCount(player)
-	local plotNumber = PlotService.GetPlotNumber(player)
-	game.Workspace.Plots[plotNumber].Buttons.MushroomPrice.Value = math.ceil((config.BasePrice * (1 + config.PriceMultiplier) ^ mushroomCount)) 
-
+	PlotService.UpdateIntValue(
+		player,
+		"MushroomPrice",
+		math.ceil((config.BasePrice * (1 + config.PriceMultiplier) ^ mushroomCount))
+	)
 end
 
 function MushroomService.CleanUp(player: Player)
@@ -85,7 +86,7 @@ function MushroomService.CleanUp(player: Player)
 end
 
 function MushroomService.Create(player: Player, tier: number)
-	local mushroomObj = MushroomClass.new(player.UserId, tier)	
+	local mushroomObj = MushroomClass.new(player.UserId, tier)
 
 	if not MushroomObjs[player.UserId][tier] then
 		MushroomObjs[player.UserId][tier] = {}
@@ -98,25 +99,25 @@ function MushroomService.Create(player: Player, tier: number)
 	table.insert(MushroomObjs[player.UserId][tier], mushroomObj)
 end
 
-function MushroomService.Buy(player: Player, amount: number) : (boolean, string?)
+function MushroomService.Buy(player: Player, amount: number): (boolean, string?)
 	if amount ~= 1 and amount ~= 5 and amount ~= 25 and amount ~= 100 then
 		return false, "Invalid Buy Amount"
 	end
 
 	local mushroomCount = PlayerService.GetMushroomCount(player)
-	
+
 	local price = math.ceil((config.BasePrice * (1 + config.PriceMultiplier) ^ mushroomCount) * amount)
-	
-	if PlayerService.GetCash(player) < price then 
+
+	if PlayerService.GetCash(player) < price then
 		return false, "Not Enough Cash"
 	end
 
 	PlayerService.AddCash(player, -price)
 
-	for _ = 1, amount do 
+	for _ = 1, amount do
 		MushroomService.Create(player, 1)
 	end
-	
+
 	local playerMushrooms = MushroomObjs[player.UserId]
 	local count = 0
 
@@ -124,17 +125,20 @@ function MushroomService.Buy(player: Player, amount: number) : (boolean, string?
 		count += #list
 	end
 
-	if count > config.MaxMushroomInThePlot then 
+	if count > config.MaxMushroomInThePlot then
 		MushroomService.Merge(player)
-	else 
+	else
 		MushroomService.SaveMushroomsData(player)
 		MushroomService.RecalculatePosition(player)
 	end
 
 	PlayerService.AddMushroomCount(player, amount)
-	
-	local plotNumber = PlotService.GetPlotNumber(player)
-	game.Workspace.Plots[plotNumber].Buttons.MushroomPrice.Value = math.ceil((config.BasePrice * (1 + config.PriceMultiplier) ^ (mushroomCount + amount))) 
+
+	PlotService.UpdateIntValue(
+		player,
+		"MushroomPrice",
+		math.ceil((config.BasePrice * (1 + config.PriceMultiplier) ^ (mushroomCount + amount)))
+	)
 
 	return true
 end
@@ -207,7 +211,7 @@ function MushroomService.Merge(player: Player)
 	MushroomService.RecalculatePosition(player)
 end
 
-function MushroomService.SaveMushroomsData(player: Player) 
+function MushroomService.SaveMushroomsData(player: Player)
 	local playerMushrooms = MushroomObjs[player.UserId]
 
 	local updatedMushrooms = {}
@@ -220,10 +224,10 @@ function MushroomService.SaveMushroomsData(player: Player)
 	PlayerService.UpdateMushrooms(player, updatedMushrooms)
 end
 
-function MushroomService.CollectMycoCap(player: Player, tier: number, capId: string) 
+function MushroomService.CollectMycoCap(player: Player, tier: number, capId: string)
 	local mushroomData = Mushrooms[tier]
-	
-	if not mushroomData or not UnclaimmedMycoCaps[player.UserId][tier] then 
+
+	if not mushroomData or not UnclaimmedMycoCaps[player.UserId][tier] then
 		return
 	end
 
