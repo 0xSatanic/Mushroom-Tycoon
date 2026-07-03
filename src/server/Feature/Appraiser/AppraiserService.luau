@@ -80,6 +80,8 @@ function AppraiserService.Deposit(player: Player)
 		return
 	end
 
+	print(player)
+
 	local depositAmount = math.ceil(mycoCapAmount * currentMultiplier)
 
 	PlayerService.AddCapInventory(player, -PlayerService.GetCapInventory(player))

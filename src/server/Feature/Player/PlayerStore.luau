@@ -52,7 +52,7 @@ function PlayerStore.Init(player: Player)
 		player:Kick("Data error occured. Please rejoin")
 		Profiles[player.UserId] = nil
 	end)
-
+	
 	if player.Parent ~= Players then
 		profile:EndSession()
 	end
@@ -60,7 +60,6 @@ function PlayerStore.Init(player: Player)
 	profile:AddUserId(player.UserId)
 	profile:Reconcile()
 
-	profile.Data = template
 	profile.Data.Cash = 100
 
 	Profiles[player.UserId] = profile

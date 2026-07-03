@@ -15,11 +15,12 @@ export type MushroomClass = typeof(setmetatable(
 		MycoCapAmount: number,
 		Model: Model,
 		MycoCapModel: Model,
+		PlotNumber: number
 	},
 	MushroomClass
 ))
 
-function MushroomClass.new(ownerId: number, tier: number): MushroomClass
+function MushroomClass.new(ownerId: number, tier: number, plotNumber: number): MushroomClass
 	local self = setmetatable({}, MushroomClass)
 
 	local mushroom = Mushrooms[tier]
@@ -29,6 +30,7 @@ function MushroomClass.new(ownerId: number, tier: number): MushroomClass
 	self.Model = mushroom.Model:Clone()
 	self.MycoCapModel = mushroom.MycoCapModel
 	self.MycoCapAmount = mushroom.MycoCapAmount
+	self.PlotNumber = plotNumber
 
 	return self
 end
@@ -44,7 +46,7 @@ function MushroomClass.SetPosition(self: MushroomClass, position: Vector3)
 
 	self.Model:PivotTo(CFrame.new(position + Vector3.new(0, -bottomOffset, 0)))
 
-	self.Model.Parent = game.Workspace
+	self.Model.Parent = game.Workspace.Plots[self.PlotNumber].Mushrooms
 end
 
 function MushroomClass.GetPosition(self: MushroomClass): Vector3
@@ -53,12 +55,17 @@ end
 
 function MushroomClass.SpawnMycoCap(self: MushroomClass) : string
 	local mushroomPosition = self:GetPosition()
+	
+	local button = game.Workspace.Plots[self.PlotNumber].Buttons.Merge.Button
 
-	local spawnCFrame = CFrame.new(mushroomPosition + Vector3.new(-8, 0, 0))
+	local direction = button.CFrame.LookVector
+
+	local spawnCFrame = CFrame.new(mushroomPosition + direction * -8)
 
 	local capId = HttpService:GenerateGUID(false)
 
-	SpawnMycoCapEvent:FireClient(Players:GetPlayerByUserId(self.OwnerId), capId, self.Tier, spawnCFrame)
+	SpawnMycoCapEvent:FireClient(Players:GetPlayerByUserId(self.OwnerId), capId, self.Tier, spawnCFrame, self.PlotNumber)
+
 
 	return capId
 end

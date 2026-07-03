@@ -9,7 +9,7 @@ local player = Players.LocalPlayer
 local MycoCaps = {}
 
 function MycoCaps.Init()
-	SpawnMycoCapEvent.OnClientEvent:Connect(function(capId: string, tier: number, CFrame: CFrame)
+	SpawnMycoCapEvent.OnClientEvent:Connect(function(capId: string, tier: number, CFrame: CFrame, plotNumber: number)
 		local mushroomData = Mushrooms[tier]
 
 		if not mushroomData then
@@ -17,7 +17,7 @@ function MycoCaps.Init()
 		end
 
 		local mycoCapModel = mushroomData.MycoCapModel:Clone()
-		mycoCapModel.Parent = game.Workspace
+		mycoCapModel.Parent = game.Workspace.Plots[plotNumber].MycoCaps
 		mycoCapModel:PivotTo(CFrame)
 		mycoCapModel.Name = capId
 

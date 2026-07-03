@@ -86,7 +86,9 @@ function MushroomService.CleanUp(player: Player)
 end
 
 function MushroomService.Create(player: Player, tier: number)
-	local mushroomObj = MushroomClass.new(player.UserId, tier)
+	local plotNumber = PlotService.GetPlotNumber(player)
+
+	local mushroomObj = MushroomClass.new(player.UserId, tier, plotNumber)
 
 	if not MushroomObjs[player.UserId][tier] then
 		MushroomObjs[player.UserId][tier] = {}
