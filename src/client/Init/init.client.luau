@@ -1,4 +1,8 @@
 local StarterPlayer = game:GetService("StarterPlayer")
-local MycoCaps = require(StarterPlayer.StarterPlayerScripts.Feature.MycoCaps)
+local MycoCapsService = require(StarterPlayer.StarterPlayerScripts.Service.MycoCapsService)
+local SoundService = require(StarterPlayer.StarterPlayerScripts.Service.SoundService)
+local UI = require(script.Parent.UI)
 
-MycoCaps.Init()
+UI.Init()
+MycoCapsService.Init()
+SoundService.Init()

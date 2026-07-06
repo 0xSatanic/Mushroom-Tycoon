@@ -5,6 +5,7 @@ registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
 [dependencies]
+robloxformatnumber = "kiy4ku/robloxformatnumber@31.1.0"
 
 [server-dependencies]
 profilestore = "lm-loleris/profilestore@1.0.3"

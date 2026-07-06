@@ -1,3 +1,7 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local HomeEvent = ReplicatedStorage.Remotes.HomeEvent
+
 local PlotService = {}
 
 local Plots: { [number]: number } = {}
@@ -66,5 +70,15 @@ function PlotService.UpdateIntValue(player: Player, valueName: string, amount: n
 
 	IntValue.Value = amount
 end
+
+HomeEvent.OnServerEvent:Connect(function(player: Player)
+	local plotNumber = PlotService.GetPlotNumber(player)
+
+	local plot: typeof(game.Workspace.Plots["1"]) = game.Workspace.Plots[plotNumber]
+
+	local char = player.Character or player.CharacterAdded:Wait()
+
+	char:PivotTo(plot.Spawn.CFrame)
+end)
 
 return PlotService

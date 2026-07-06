@@ -9,6 +9,9 @@ local MushroomClass = require(script.Parent.MushroomClass)
 local PlotService = require(ServerScriptService.Feature.Plot.PlotService)
 
 local CollectMycoCapEvent = ReplicatedStorage.Remotes.CollectMycoCapEvent
+local GetMycoCapEvent = ReplicatedStorage.Remotes.GetMycoCapEvent
+local PlaySoundEvent = ReplicatedStorage.Remotes.PlaySoundEvent
+local ShowNotificationEvent = ReplicatedStorage.Remotes.ShowNotificationEvent
 
 local MushroomService = {}
 
@@ -103,6 +106,7 @@ end
 
 function MushroomService.Buy(player: Player, amount: number): (boolean, string?)
 	if amount ~= 1 and amount ~= 5 and amount ~= 25 and amount ~= 100 then
+		PlaySoundEvent:FireClient(player, "Failed")
 		return false, "Invalid Buy Amount"
 	end
 
@@ -111,6 +115,8 @@ function MushroomService.Buy(player: Player, amount: number): (boolean, string?)
 	local price = math.ceil((config.BasePrice * (1 + config.PriceMultiplier) ^ mushroomCount) * amount)
 
 	if PlayerService.GetCash(player) < price then
+		PlaySoundEvent:FireClient(player, "Failed")
+		ShowNotificationEvent:FireClient(player,"failed", "Not Enough Cash")
 		return false, "Not Enough Cash"
 	end
 
@@ -141,6 +147,9 @@ function MushroomService.Buy(player: Player, amount: number): (boolean, string?)
 		"MushroomPrice",
 		math.ceil((config.BasePrice * (1 + config.PriceMultiplier) ^ (mushroomCount + amount)))
 	)
+
+	PlaySoundEvent:FireClient(player, "Success")
+	ShowNotificationEvent:FireClient(player, "success", "+" .. amount .. " Mushrooms!")
 
 	return true
 end
@@ -211,6 +220,7 @@ function MushroomService.Merge(player: Player)
 
 	MushroomService.SaveMushroomsData(player)
 	MushroomService.RecalculatePosition(player)
+	PlaySoundEvent:FireClient(player, "Success")
 end
 
 function MushroomService.SaveMushroomsData(player: Player)
@@ -241,10 +251,15 @@ function MushroomService.CollectMycoCap(player: Player, tier: number, capId: str
 
 	table.remove(UnclaimmedMycoCaps[player.UserId][tier], uncollectedMycoCapIndex)
 	PlayerService.AddCapInventory(player, mushroomData.MycoCapAmount)
+	GetMycoCapEvent:FireClient(player, PlayerService.GetCapInventory(player))
 end
 
 CollectMycoCapEvent.OnServerEvent:Connect(function(player: Player, tier: number, capId: string)
 	MushroomService.CollectMycoCap(player, tier, capId)
+end)
+
+GetMycoCapEvent.OnServerEvent:Connect(function(player: Player)
+	GetMycoCapEvent:FireClient(player, PlayerService.GetCapInventory(player))
 end)
 
 return MushroomService

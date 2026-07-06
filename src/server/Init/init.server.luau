@@ -7,6 +7,11 @@ local PlayerStore = require(ServerScriptService.Feature.Player.PlayerStore)
 local PlotService = require(ServerScriptService.Feature.Plot.PlotService)
 
 Players.PlayerAdded:Connect(function(player: Player)
+    player.CharacterAdded:Connect(function(character)
+		local humanoid = character:WaitForChild("Humanoid")
+		humanoid.WalkSpeed = 24 
+	end)
+
     PlotService.Init(player)
     PlayerStore.Init(player)
     PlayerService.Init(player)

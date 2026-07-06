@@ -1,8 +1,14 @@
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Helper = require(ReplicatedStorage.Shared.Helper)
 local PlayerService = require(ServerScriptService.Feature.Player.PlayerService)
 local PlotService = require(ServerScriptService.Feature.Plot.PlotService)
 local AppraiserService = {}
+
+local GetMycoCapEvent = ReplicatedStorage.Remotes.GetMycoCapEvent
+local PlaySoundEvent = ReplicatedStorage.Remotes.PlaySoundEvent
+local ShowNotificationEvent = ReplicatedStorage.Remotes.ShowNotificationEvent
 
 local config = {
 	BaseRate = 1,
@@ -60,6 +66,8 @@ function AppraiserService.UpgradeAppraiserRateLevel(player: Player): boolean
 	local cost = AppraiserService.GetUpgradePrice(player)
 
 	if PlayerService.GetCash(player) < cost then
+		PlaySoundEvent:FireClient(player, "Failed")
+		ShowNotificationEvent:FireClient(player, "failed", "Not Enough Cash!")
 		return false
 	end
 
@@ -70,6 +78,13 @@ function AppraiserService.UpgradeAppraiserRateLevel(player: Player): boolean
 	PlotService.UpdateIntValue(player, "AppraisalUpgradePrice", AppraiserService.GetUpgradePrice(player))
 	PlotService.UpdateIntValue(player, "AppraisalUpgradeSpeedIncrease", AppraiserService.GetUpgradeRateIncrease(player))
 
+	PlaySoundEvent:FireClient(player, "Success")
+	ShowNotificationEvent:FireClient(
+		player,
+		"success",
+		"Processing upgrade to " .. Helper.FormatNumber(AppraiserService.GetAppraiserRate(player)) .. "/sec!"
+	)
+
 	return true
 end
 
@@ -77,10 +92,10 @@ function AppraiserService.Deposit(player: Player)
 	local mycoCapAmount = PlayerService.GetCapInventory(player)
 
 	if mycoCapAmount <= 0 then
+		PlaySoundEvent:FireClient(player, "Failed")
+		ShowNotificationEvent:FireClient(player, "failed", "No MycoCaps to Deposit!")
 		return
 	end
-
-	print(player)
 
 	local depositAmount = math.ceil(mycoCapAmount * currentMultiplier)
 
@@ -88,14 +103,22 @@ function AppraiserService.Deposit(player: Player)
 	PlayerService.AddAppraiserStorage(player, depositAmount)
 
 	PlotService.UpdateIntValue(player, "MycoCapToAppraise", PlayerService.GetAppraiserStorage(player))
+	GetMycoCapEvent:FireClient(player, PlayerService.GetCapInventory(player))
+
+	PlaySoundEvent:FireClient(player, "Success")
+	ShowNotificationEvent:FireClient(player, "normal", "Deposit " .. Helper.FormatNumber(depositAmount) .. " MycoCaps!")
 end
 
 function AppraiserService.CollectCash(player: Player): number?
 	local claimedAmount = PlayerService.ClaimCash(player)
 
 	if claimedAmount <= 0 then
+		ShowNotificationEvent:FireClient(player, "failed", "No MycoCaps to Collect!")
 		return nil
 	end
+
+	PlaySoundEvent:FireClient(player, "CollectCash")
+	ShowNotificationEvent:FireClient(player, "success", "Collected $" .. Helper.FormatNumber(claimedAmount))
 
 	return claimedAmount
 end
@@ -104,9 +127,9 @@ task.spawn(function()
 	while true do
 		game.Workspace.MiddlePart.Values.Timer.Value = config.MultiplierInterval
 
-		while game.Workspace.MiddlePart.Values.Timer.Value > 0 do 
+		while game.Workspace.MiddlePart.Values.Timer.Value > 0 do
 			task.wait(1)
-			game.Workspace.MiddlePart.Values.Timer.Value -=1
+			game.Workspace.MiddlePart.Values.Timer.Value -= 1
 		end
 
 		local newMultiplier
@@ -117,6 +140,14 @@ task.spawn(function()
 
 		currentMultiplier = newMultiplier
 		game.Workspace.MiddlePart.Values.CurrentMultiplier.Value = currentMultiplier
+
+		if currentMultiplier == config.MultiplierMax then
+			PlaySoundEvent:FireAllClients("Perfect")
+			ShowNotificationEvent:FireAllClients("perfect", "Multiplier change into " .. currentMultiplier .. "x")
+		else
+			PlaySoundEvent:FireAllClients("Success")
+			ShowNotificationEvent:FireAllClients("normal", "Multiplier change into " .. currentMultiplier .. "x")
+		end
 	end
 end)
 

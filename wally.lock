@@ -3,6 +3,11 @@
 registry = "test"
 
 [[package]]
+name = "kiy4ku/robloxformatnumber"
+version = "31.1.0"
+dependencies = []
+
+[[package]]
 name = "lm-loleris/profilestore"
 version = "1.0.3"
 dependencies = []
@@ -10,4 +15,4 @@ dependencies = []
 [[package]]
 name = "velkhana/mushroom-tycoon"
 version = "0.1.0"
-dependencies = [["profilestore", "lm-loleris/profilestore@1.0.3"]]
+dependencies = [["robloxformatnumber", "kiy4ku/robloxformatnumber@31.1.0"], ["profilestore", "lm-loleris/profilestore@1.0.3"]]

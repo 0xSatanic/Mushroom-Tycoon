@@ -6,9 +6,9 @@ local SpawnMycoCapEvent = ReplicatedStorage.Remotes.SpawnMycoCapEvent
 local CollectMycoCapEvent = ReplicatedStorage.Remotes.CollectMycoCapEvent
 
 local player = Players.LocalPlayer
-local MycoCaps = {}
+local MycoCapsService = {}
 
-function MycoCaps.Init()
+function MycoCapsService.Init()
 	SpawnMycoCapEvent.OnClientEvent:Connect(function(capId: string, tier: number, CFrame: CFrame, plotNumber: number)
 		local mushroomData = Mushrooms[tier]
 
@@ -47,4 +47,4 @@ function MycoCaps.Init()
 	end)
 end
 
-return MycoCaps
+return MycoCapsService
